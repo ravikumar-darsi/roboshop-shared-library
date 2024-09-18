@@ -1,3 +1,4 @@
+def call(Map configMap){
 pipeline {
     agent {
         node {
@@ -117,4 +118,5 @@ pipeline {
             echo 'I will say Hello when the pipeline is executed successfully' // Execute only on successful execution
         }
     }
+}
 }
