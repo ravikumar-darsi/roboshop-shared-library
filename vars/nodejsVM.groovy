@@ -7,7 +7,8 @@ pipeline {
     }
     environment { 
         packageVersion = '' // Placeholder for the package version extracted from the package.json file
-        nexusURL = '172.31.21.186:8081' // URL for Nexus repository
+        //nexusURL = '172.31.21.186:8081' // URL for Nexus repository
+        //above private ip was used as global variables 
     }
     options {
         timeout(time: 1, unit: 'HOURS') // Set timeout of 1 hour for the entire pipeline
@@ -62,9 +63,10 @@ pipeline {
             steps {
               // List the current files and directories
               // Create a zip file, excluding .git and any .zip files
+              // zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"  previously this changed into below line
                 sh """
                     ls -la 
-                    zip -q -r catalogue.zip ./* -x ".git" -x "*.zip" 
+                    zip -q -r ${configMap.component}.zip ./* -x ".git" -x "*.zip"
                     ls -ltr
                 """
             }
@@ -74,15 +76,19 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3', // Specify Nexus version (Nexus 3 in this case)
                     protocol: 'http', // Use HTTP protocol to connect to Nexus
-                    nexusUrl: "${nexusURL}", // Nexus URL defined in environment variables
+                    //nexusUrl: "${nexusURL}", // Nexus URL defined in environment variables
+                    nexusUrl: pipelineGlobals.nexusURL(),
                     groupId: 'com.roboshop', // Define the groupId for the artifact
                     version: "${packageVersion}", // Use the package version fetched from the package.json
-                    repository: 'catalogue', // Repository name in Nexus
+                    //repository: 'catalogue', // Repository name in Nexus
+                    repository: "${configMap.component}",
                     credentialsId: 'nexus-auth', // Jenkins credentials ID for Nexus authentication
                     artifacts: [
-                        [artifactId: 'catalogue', // Define artifactId for the artifact
+                       // [artifactId: 'catalogue', // Define artifactId for the artifact
+                        [artifactId: "${configMap.component}",
                         classifier: '', // No classifier needed for this artifact
-                        file: 'catalogue.zip', // File to be uploaded
+                      //  file: 'catalogue.zip', // File to be uploaded
+                        file: "${configMap.component}.zip",
                         type: 'zip'] // Define the type of the file (zip)
                     ]
                 )
@@ -100,7 +106,8 @@ pipeline {
                             string(name: 'version', value: "$packageVersion"),
                             string(name: 'environment', value: "dev")
                         ]
-                    build job: "catalogue-deploy", wait: true, parameters: params               
+                   // build job: "catalogue-deploy", wait: true, parameters: params  
+                      build job: "../${configMap.component}-deploy", wait: true, parameters: params             
                 }
             }
         }
