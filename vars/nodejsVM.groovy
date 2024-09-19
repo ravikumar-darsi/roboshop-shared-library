@@ -63,7 +63,7 @@ pipeline {
             steps {
               // List the current files and directories
               // Create a zip file, excluding .git and any .zip files
-              // zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"  previously this changed into below line
+              // zip -q -r catalogue.zip ./* -x ".git" -x "*.zip"  previously like this changed into below line
                 sh """
                     ls -la 
                     zip -q -r ${configMap.component}.zip ./* -x ".git" -x "*.zip"
