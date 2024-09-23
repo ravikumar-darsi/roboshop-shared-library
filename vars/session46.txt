@@ -1,4 +1,4 @@
 Pipeline process / CICD process:
-------------------------------------------
+------------------------------------
 1: Creation of the Project Infra 
 ---> Mostly one time creation like VPC, DB, Load Balancers, Firewalls.
